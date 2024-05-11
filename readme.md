@@ -19,7 +19,7 @@ The total number of letters that can be created in Hangul by combining 19 initia
 <img src='assets/Overview.png'/>
 
 <br/>
-/
+
 #### 2) Korean Components
 <img src='assets/Components.png'/>
 
@@ -35,8 +35,6 @@ The total number of letters that can be created in Hangul by combining 19 initia
 
 * Python 3.9.13
 * Tensorflow-gpu 1.15
-
-<br/>
 
 ```
 conda create --name decompose python=3.9.13
