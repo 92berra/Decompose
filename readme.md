@@ -28,18 +28,12 @@ The total number of letters that can be created in Hangul by combining 19 initia
 #### 3) Korean Combination Type
 <img src='assets/6types.png'/>
 
-<br/>
-<br/>
-
-## Environment
-* Ubuntu 22.04.3 LTS
-* NVIDIA GeForce RTX 2080 Ti 
-
 <br>
 <br>
 
 ## Prerequisites
-
+* Ubuntu 22.04.3 LTS
+* NVIDIA GeForce RTX 2080 Ti 
 * Python 3.9.13
 * Tensorflow-gpu 1.15
 
