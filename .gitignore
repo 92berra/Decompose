@@ -1,0 +1,16 @@
+.backup-codes
+.temp-docs
+.test-codes
+.DS_Store
+.vscode
+
+__pycache__/*
+
+datasets/images
+
+trained_model/*
+tested_model/*
+
+*/.ipynb_checkpoints
+*/*.pt
+*/*.tfrecords
