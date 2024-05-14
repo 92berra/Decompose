@@ -119,6 +119,40 @@ python main.py --mode test --output_dir result --checkpoint trained_model
 
 <br/>
 <br/>
+
+## Result
+
+#### 1) Loss
+
+<img src='assets/generator_loss_l1.png'/>
+<img src='assets/generator_loss_GAN.png'>
+<img src='assets/discriminator_loss.png'>
+
+<br/>
+
+#### 2) Result sample of train
+
+<img src='assets/Train-result.png'>
+
+<br/>
+
+#### 3) Comparison to prior research
+
+CKFont
+<img src='assets/result/CKFont.png'>
+
+<br/>
+
+MXFont
+<img src='assets/result/MXFont.png'>
+
+<br/>
+
+My Research 
+<img src='assets/result/Berra.png'>
+
+<br/>
+<br/>
 <br/>
 <br/>
 <br/>
