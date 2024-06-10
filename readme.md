@@ -30,7 +30,7 @@ The total number of letters that can be created in Hangul by combining 19 initia
 <br>
 
 ## Prerequisites
-* Ubuntu 22.04.3 LTSㅍ
+* Ubuntu 22.04.3 LTS
 * NVIDIA GeForce RTX 2080 Ti 
 * Python 3.9.13
 * Tensorflow-gpu 1.15
