@@ -1,7 +1,5 @@
 # 한글 생성 모델의 정확도 향상을 위한 구성요소 분리
 
-<a href="https://oasis.ssu.ac.kr/search/i-discovery/edsker:edsker.000005127591?index=2">Thesis URL </a>
-
 <br/>
 <br/>
 
