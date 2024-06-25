@@ -41,6 +41,8 @@ conda activate decompose
 pip install -r requirements.txt
 ```
 
+🛠️ Currently, is creating a model using PyTorch.
+
 <br>
 <br>
 
@@ -133,13 +135,13 @@ python main.py --mode test --output_dir result --checkpoint trained_model
 
 <b>2) Values of Loss, SSIM, FID </b>
 <br/>
-In progress...
+🛠️ In progress...
 
 <br/>
 
 <b>3) Figure: Loss comparison (MXFont, CKFont, My research)</b>
 <br/>
-In progress...
+🛠️ In progress...
 
 
 <br/>
