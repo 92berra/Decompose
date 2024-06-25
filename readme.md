@@ -19,7 +19,7 @@ The total number of letters that can be created in Hangul by combining 19 initia
 <br/>
 
 #### 2) Korean Components
-<img src='assets/1-introduction-korean_components_v2.png'/>
+<img src='assets/1-introduction-korean_components.png'/>
 
 <br/>
 
@@ -30,6 +30,9 @@ The total number of letters that can be created in Hangul by combining 19 initia
 <br>
 
 ## Prerequisites
+
+🛠️ In Progress: Modify framework from Tensorflow to PyTorch 
+
 * Ubuntu 22.04.3 LTS
 * NVIDIA GeForce RTX 2080 Ti 
 * Python 3.9.13
@@ -40,8 +43,6 @@ conda create --name decompose python=3.9.13
 conda activate decompose
 pip install -r requirements.txt
 ```
-
-🛠️ Currently, is creating a model using PyTorch.
 
 <br>
 <br>
@@ -127,7 +128,7 @@ python main.py --mode test --output_dir result --checkpoint trained_model
 <b>1) Generated result sample</b>
 <br/>
 <div align='center'>
-    <img src='assets/generated-result_v2.png' width='700'/>
+    <img src='assets/2-result-generated_sample.png' width='700'/>
 </div>
 
 <br/>
