@@ -19,7 +19,7 @@ The total number of letters that can be created in Hangul by combining 19 initia
 <br/>
 
 #### 2) Korean Components
-<img src='assets/1-introduction-korean_components.png'/>
+<img src='assets/1-introduction-korean_components_v2.png'/>
 
 <br/>
 
@@ -125,7 +125,7 @@ python main.py --mode test --output_dir result --checkpoint trained_model
 <b>1) Generated result sample</b>
 <br/>
 <div align='center'>
-    <img src='assets/generated-result.png' width='700'/>
+    <img src='assets/generated-result_v2.png' width='700'/>
 </div>
 
 <br/>
