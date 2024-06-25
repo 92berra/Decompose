@@ -120,8 +120,20 @@ python main.py --mode test --output_dir result --checkpoint trained_model
 
 ## Result
 
-Generated result sample
+<br/>
+
+<b>Generated result sample</b>
 <img src='assets/result/generated-result.png'/>
+
+<br/>
+
+<b>Table: Values of Loss, SSIM, FID </b>
+
+<br/>
+
+<b>Figure: Loss comparison (MXFont, CKFont, My research)</b>
+
+<br/>
 
 <br/>
 <br/>
