@@ -124,6 +124,7 @@ python main.py --mode test --output_dir result --checkpoint trained_model
 
 <b>Generated result sample</b>
 <br/>
+<br/>
 <img src='assets/result/generated-result.png'/>
 
 <br/>
