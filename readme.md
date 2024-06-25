@@ -133,13 +133,13 @@ python main.py --mode test --output_dir result --checkpoint trained_model
 
 <b>Values of Loss, SSIM, FID </b>
 <br/>
-In progress
+In progress...
 
 <br/>
 
 <b>Figure: Loss comparison (MXFont, CKFont, My research)</b>
 <br/>
-In progress
+In progress...
 
 
 <br/>
