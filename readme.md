@@ -14,7 +14,7 @@ The total number of letters that can be created in Hangul by combining 19 initia
 <br/>
 
 #### 1) Overview
-<img src='assets/1-introduction_overview.png'/>
+<img src='assets/1-introduction-overview.png'/>
 
 <br/>
 
