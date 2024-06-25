@@ -132,9 +132,8 @@ python main.py --mode test --output_dir result --checkpoint trained_model
 <br/>
 <br/>
 
-<b>Table: Values of Loss, SSIM, FID </b>
+<b>Values of Loss, SSIM, FID </b>
 <br/>
-
 In progress
 
 <br/>
