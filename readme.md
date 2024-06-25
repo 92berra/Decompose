@@ -122,7 +122,7 @@ python main.py --mode test --output_dir result --checkpoint trained_model
 
 <br/>
 
-<b>Generated result sample</b>
+<b>1) Generated result sample</b>
 <br/>
 <div align='center'>
     <img src='assets/result/generated-result.png' width='700'/>
@@ -131,13 +131,13 @@ python main.py --mode test --output_dir result --checkpoint trained_model
 <br/>
 <br/>
 
-<b>Values of Loss, SSIM, FID </b>
+<b>2) Values of Loss, SSIM, FID </b>
 <br/>
 In progress...
 
 <br/>
 
-<b>Figure: Loss comparison (MXFont, CKFont, My research)</b>
+<b>3) Figure: Loss comparison (MXFont, CKFont, My research)</b>
 <br/>
 In progress...
 
