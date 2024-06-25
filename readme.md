@@ -19,7 +19,7 @@ The total number of letters that can be created in Hangul by combining 19 initia
 <br/>
 
 #### 2) Korean Components
-<img src='assets/1-introduction_korean-components.png'/>
+<img src='assets/1-introduction-components.png'/>
 
 <br/>
 
