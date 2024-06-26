@@ -1,0 +1,9 @@
+1) First seperate output images and target images from the testing results
+CUDA_VISIBLE_DEVICES=2 python testing_codes/image-data-seperation.py 
+
+2) Compute SSIM using the tgt and outsputs from the first step
+python testing_codes/computing_ssim.py
+
+
+3) Compute SSIM, L1/L2 in one using the tgt and outsputs from the first step
+CUDA_VISIBLE_DEVICES=2 python testing_codes/L1L2LossWithoutTensorflow.py
