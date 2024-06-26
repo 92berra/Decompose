@@ -6,8 +6,8 @@ import numpy as np
 from jamo import h2j, j2hcj
 
 # Default data paths.
-DEFAULT_INPUT_DIR = './datasets/images/target-split-total'
-DEFAULT_OUTPUT_DIR = './datasets/images/target-combine'
+DEFAULT_INPUT_DIR = './datasets/images/test-split-total'
+DEFAULT_OUTPUT_DIR = './datasets/images/test-combine'
 
 def img_combine(input_dir, output_dir):
     

@@ -7,9 +7,9 @@ import os
 
 from PIL import Image, ImageFont, ImageDraw
 
-DEFAULT_LABEL_FILE = './datasets/characters/50characters.txt'
-DEFAULT_FONTS_DIR = './datasets/fonts/target'
-DEFAULT_OUTPUT_DIR = './datasets/images/target'
+DEFAULT_LABEL_FILE = './datasets/characters/7characters.txt'
+DEFAULT_FONTS_DIR = './datasets/fonts/source'
+DEFAULT_OUTPUT_DIR = './datasets/images/test-split-total'
 
 IMAGE_WIDTH = 256
 IMAGE_HEIGHT = 256

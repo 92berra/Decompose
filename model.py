@@ -8,18 +8,19 @@ from ops import *
 EPS = 1e-12
 
 SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
-tgt_font_path = os.path.join(SCRIPT_PATH, './datasets/fonts/target')
+tgt_font_path = os.path.join(SCRIPT_PATH, 'fonts/target')
 
 Model = collections.namedtuple("Model", "outputs, predict_real, predict_fake, \
-        disc_real_loss, disc_fake_loss, disc_loss_real_styl, discrim_grads_and_vars, \
+        disc_real_loss, disc_fake_loss, disc_loss_real_char, discrim_grads_and_vars, \
         gen_loss_GAN, gen_loss_L1, gen_grads_and_vars, train")
 
 # parameters for style embedding
 train_num_styles = len(glob.glob1(tgt_font_path,"*.ttf"))
-fine_tune_styles = 17
-total_styles = train_num_styles + fine_tune_styles
+total_styles = train_num_styles
+#fine_tune_styles = 17
+#total_styles = train_num_styles + fine_tune_styles
 
-total_characters = 2000
+total_characters = 50
 
 ##################################################################################
 # Content Encoder
@@ -56,7 +57,7 @@ def create_content_enc(content_img, a):
         print()
 
     with tf.variable_scope("content_encoder_4"):
-        x4 = conv(x3, channel * 8, kernel=4, stride=2, pad=1, pad_type='reflect')
+        x4 = conv(x3, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
         x4 = instance_norm(x4)
         x4 = tf.nn.relu(x4)
         layers.append(x4)
@@ -84,9 +85,9 @@ def create_content_enc(content_img, a):
 ##################################################################################
 # Style Encoder
 ##################################################################################
-def create_style_enc(tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, a):
+def create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, a):
     layers = []
-    style_imgs = tf.concat([tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt], axis=3)
+    style_imgs = tf.concat([src_1stSpt, src_2ndSpt, src_3rdSpt], axis=3)
     print('Style image shape is ', style_imgs.shape)
     print()
     channel = a.ngf
@@ -116,7 +117,7 @@ def create_style_enc(tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, a):
         print()
 
     with tf.variable_scope("style_encoder_4"):
-        x4 = conv(x3, channel * 8, kernel=4, stride=2, pad=1, pad_type='reflect')
+        x4 = conv(x3, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
         x4 = instance_norm(x4)
         x4 = tf.nn.relu(x4)
         layers.append(x4)
@@ -124,7 +125,7 @@ def create_style_enc(tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, a):
         print()
 
     with tf.variable_scope("style_encoder_5"):
-        x5 = conv(x4, channel * 8, kernel=4, stride=2, pad=1, pad_type='reflect')
+        x5 = conv(x4, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
         x5 = instance_norm(x5)
         x5 = tf.nn.relu(x5)
         layers.append(x5)
@@ -132,21 +133,52 @@ def create_style_enc(tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, a):
         print()
 
     with tf.variable_scope("style_encoder_6"):
-        x6 = conv(x5, channel * 8, kernel=4, stride=2, pad=1, pad_type='reflect')
+        x6 = conv(x5, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
         x6 = instance_norm(x6)
         x6 = tf.nn.relu(x6)
         layers.append(x6)
         print('Style encoder 6 shape is ', x6.shape)
         print()
+    
+    with tf.variable_scope("style_encoder_7"):
+        x7 = conv(x6, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
+        x7 = instance_norm(x7)
+        x7 = tf.nn.relu(x7)
+        layers.append(x7)
+        print('Style encoder 7 shape is ', x7.shape)
+        print()
 
-    return x6, layers
+    with tf.variable_scope("style_encoder_8"):
+        x8 = conv(x7, channel * 8, kernel=4, stride=2, pad=1, pad_type='reflect')
+        x8 = instance_norm(x8)
+        x8 = tf.nn.relu(x8)
+        layers.append(x8)
+        print('Style encoder 8 shape is ', x8.shape)
+        print()
+
+    with tf.variable_scope("style_encoder_9"):
+        x9 = conv(x8, channel * 8, kernel=4, stride=2, pad=1, pad_type='reflect')
+        x9 = instance_norm(x9)
+        x9 = tf.nn.relu(x9)
+        layers.append(x9)
+        print('Style encoder 9 shape is ', x9.shape)
+        print()
+
+    # # Adding Fully connected layer after our Encoder as we want to add classification loss
+    # output_flat = tf.layers.flatten(x6)
+
+    # with tf.variable_scope('layer_fc_s'):
+    #     styl_y = tf.layers.dense(output_flat, total_styles,
+    #                                   kernel_initializer=tf.random_normal_initializer(0, 0.02))
+
+    return x9, layers 
 
 ##################################################################################
 # Decoder
 ##################################################################################
 def create_decoder(content, style, generator_outputs_channels, cnt_layers, sty_layers, a):
     channel = a.ngf * 16
-
+    style = style * tf.ones([1, content.shape[1], content.shape[2], style.shape[3]])
     x = tf.concat([content, style], axis=3)
     print('Decoder input shape is ', x.shape)
     print()
@@ -219,7 +251,7 @@ def create_decoder(content, style, generator_outputs_channels, cnt_layers, sty_l
 ##################################################################################
 
 def create_discriminator(discrim_inputs, discrim_targets, args):
-    n_layers = 3
+    n_layers = 4
     layers = []
 
     # 2x [batch, height, width, in_channels] => [batch, height, width, in_channels * 2]
@@ -242,6 +274,7 @@ def create_discriminator(discrim_inputs, discrim_targets, args):
             normalized = batchnorm(convolved)
             rectified = lrelu(normalized, 0.2)
             layers.append(rectified)
+    features = layers[-1]
 
     # layer_5: [batch, 31, 31, ndf * 8] => [batch, 30, 30, 1]
     with tf.variable_scope("layer_%d" % (len(layers) + 1)):
@@ -250,13 +283,13 @@ def create_discriminator(discrim_inputs, discrim_targets, args):
         layers.append(output)
 
     # Adding Fully connected layer after our Encoder as we want to add classification loss
-    output_flat = tf.layers.flatten(layers[-1])
+    output_flat = tf.layers.flatten(features)
 
-    with tf.variable_scope('layer_fc_s'):
-        styl_y = tf.layers.dense(output_flat, total_styles,
+    with tf.variable_scope('layer_fc_c'):
+        char_y = tf.layers.dense(output_flat, total_characters,
                                       kernel_initializer=tf.random_normal_initializer(0, 0.02))
 
-    return layers[-1], styl_y
+    return layers[-1], char_y, features
 
 ##################################################################################
 # Build Model
@@ -267,14 +300,14 @@ def create_discriminator(discrim_inputs, discrim_targets, args):
 # global_step then just keeps track of the number of batches seen so far.
 ##################################################################################
 
-def create_model(src_font, targets, tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, style_labels, char_labels, args):
+def create_model(src_font, targets, src_1stSpt, src_2ndSpt, src_3rdSpt, style_labels, char_labels, args):
     out_channels = int(targets.get_shape()[-1])
     with tf.name_scope("content_encoder_generator"):
         with tf.variable_scope("generator"):
             content_features, content_layers = create_content_enc(src_font, args)
     with tf.name_scope("style_encoder_generator"):
         with tf.variable_scope("generator"):
-            style_features, style_layers = create_style_enc(tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, args)
+            style_features, style_layers = create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, args)
     with tf.name_scope("decoder_generator"):
         with tf.variable_scope("generator"):
             outputs = create_decoder(content_features, style_features, out_channels, content_layers, style_layers, args)
@@ -284,12 +317,12 @@ def create_model(src_font, targets, tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, style_la
     with tf.name_scope("real_discriminator"):
         with tf.variable_scope("discriminator"):
             # 2x [batch, height, width, channels] => [batch, 7, 7, 1]
-            predict_real, real_styl = create_discriminator(src_font, targets, args)
+            predict_real, pred_char, real_feats = create_discriminator(src_font, targets, args)
 
     with tf.name_scope("fake_discriminator"):
         with tf.variable_scope("discriminator", reuse=True):
             # 2x [batch, height, width, channels] => [batch, 7, 7, 1]
-            predict_fake, _ = create_discriminator(src_font, outputs, args)
+            predict_fake, _, fake_feats = create_discriminator(src_font, outputs, args)
 
     # Loss Functions
     with tf.name_scope("discriminator_loss"):
@@ -299,16 +332,18 @@ def create_model(src_font, targets, tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, style_la
         disc_real_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=tf.ones_like(predict_real), logits=predict_real))
         disc_fake_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=tf.zeros_like(predict_fake), logits=predict_fake))
         
-        disc_loss_real_styl = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=style_labels, logits=real_styl))
+        disc_loss_real_char = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=char_labels, logits=pred_char))
 
         # Discriminator Final Loss
-        discrim_loss =  disc_real_loss + disc_fake_loss + disc_loss_real_styl * args.classification_penalty
-
+        discrim_loss =  disc_real_loss + disc_fake_loss + disc_loss_real_char * args.classification_penalty
+        
     with tf.name_scope("generator_loss"):
         # predict_fake => 1
         # abs(targets - outputs) => 0
         gen_loss_GAN = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=tf.ones_like(predict_fake), logits=predict_fake))
-        gen_loss_L1 = tf.reduce_mean(tf.abs(targets - outputs))
+        gen_loss_L1 = tf.reduce_mean(tf.abs(real_feats - fake_feats))
+        # gen_loss_styl_enc = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=style_labels, logits=enc_style_feats))
+        # gen_loss = gen_loss_GAN * args.gan_weight + gen_loss_L1 * args.l1_weight + gen_loss_styl_enc * args.classification_penalty
         gen_loss = gen_loss_GAN * args.gan_weight + gen_loss_L1 * args.l1_weight
 
     # Training D and G using Adam
@@ -326,7 +361,7 @@ def create_model(src_font, targets, tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, style_la
             gen_train = gen_optim.apply_gradients(gen_grads_and_vars)
 
     ema = tf.train.ExponentialMovingAverage(decay=0.99)
-    update_losses = ema.apply([disc_real_loss, disc_fake_loss, disc_loss_real_styl, gen_loss_GAN, gen_loss_L1])
+    update_losses = ema.apply([disc_real_loss, disc_fake_loss, disc_loss_real_char, gen_loss_GAN, gen_loss_L1])
 
     global_step = tf.train.get_or_create_global_step()
     incr_global_step = tf.assign(global_step, global_step+1)
@@ -336,10 +371,11 @@ def create_model(src_font, targets, tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, style_la
         predict_fake=predict_fake,
         disc_real_loss=ema.average(disc_real_loss),
         disc_fake_loss=ema.average(disc_fake_loss),
-        disc_loss_real_styl=ema.average(disc_loss_real_styl),
+        disc_loss_real_char=ema.average(disc_loss_real_char),
         discrim_grads_and_vars=discrim_grads_and_vars,
         gen_loss_GAN=ema.average(gen_loss_GAN),
         gen_loss_L1=ema.average(gen_loss_L1),
+        # gen_loss_styl_enc=ema.average(gen_loss_styl_enc),
         gen_grads_and_vars=gen_grads_and_vars,
         outputs=outputs,
         train=tf.group(update_losses, incr_global_step, gen_train),

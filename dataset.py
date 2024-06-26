@@ -8,16 +8,17 @@ import collections
 from utils import *
 
 SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
-train_tfrecords_dir = os.path.join(SCRIPT_PATH, 'train-tfrecords-output')
-test_tfrecords_dir = os.path.join(SCRIPT_PATH, 'test-tfrecords-output')
-tgt_font_path = os.path.join(SCRIPT_PATH, './datasets/fonts/target')
+train_tfrecords_dir = os.path.join(SCRIPT_PATH, 'tfrecords/train/trainData_final')
+test_tfrecords_dir = os.path.join(SCRIPT_PATH, 'tfrecords/test/test-tfrecords-output-50-hh')
+tgt_font_path = os.path.join(SCRIPT_PATH, 'fonts/target')
 
 CROP_SIZE = 256
 # parameters for style embedding
-total_styles = len(glob.glob1(tgt_font_path,"*.ttf"))
+train_num_styles = len(glob.glob1(tgt_font_path,"*.ttf"))
+total_styles = train_num_styles
 total_characters = 50
 
-Examples = collections.namedtuple("Examples", "paths, src_font, tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, \
+Examples = collections.namedtuple("Examples", "paths, src_font, src_1stSpt, src_2ndSpt, src_3rdSpt, \
                                     tgt_font, count, steps_per_epoch, style_labels, character_labels")
 
 ############################################################################################
@@ -102,21 +103,21 @@ def _parse_function(example, a):
     with tf.name_scope("target_font"):
         tgt_font = transform(b_images)
 
-    with tf.name_scope("tgt_1st"):  
-        tgt_1stSpt = transform(c_images)
+    with tf.name_scope("src_1st"):  
+        src_1stSpt = transform(c_images)
 
-    with tf.name_scope("tgt_2nd"):
-        tgt_2ndSpt = transform(d_images)
+    with tf.name_scope("src_2nd"):
+        src_2ndSpt = transform(d_images)
 
-    with tf.name_scope("tgt_3rd"):
-        tgt_3rdSpt = transform(e_images)
+    with tf.name_scope("src_3rd"):
+        src_3rdSpt = transform(e_images)
 
     # Represent the label as a one-hot vector.
     style_label = tf.stack(tf.one_hot(style_label, total_styles, dtype=tf.float32))
     character_label = tf.stack(tf.one_hot(character_label, total_characters, dtype=tf.float32))
     # print("labels shape in parser functions ", label.shape)
 
-    return src_font, tgt_font, tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, style_label, character_label, path
+    return src_font, tgt_font, src_1stSpt, src_2ndSpt, src_3rdSpt, style_label, character_label, path
 
 ##################################################################################
 # Load TFRecord files for training or testing and apply preprocessing on images
@@ -165,7 +166,7 @@ def load_examples(args):
                total_records += 1
 
    # batch contains the input images , labels and target images for the model
-    src_font, tgt_font, tgt_1stSpt, tgt_2ndSpt, tgt_3rdSpt, style_label, character_label, path = batch
+    src_font, tgt_font, src_1stSpt, src_2ndSpt, src_3rdSpt, style_label, character_label, path = batch
     steps_per_epoch = int(math.ceil(total_records / args.batch_size))
 
    # Finally Examples named tuple is returned to the main function for feeding into the model
@@ -173,9 +174,9 @@ def load_examples(args):
         paths=path,
         src_font=src_font,
         tgt_font=tgt_font,
-        tgt_1stSpt=tgt_1stSpt,
-        tgt_2ndSpt=tgt_2ndSpt,
-        tgt_3rdSpt=tgt_3rdSpt,
+        src_1stSpt=src_1stSpt,
+        src_2ndSpt=src_2ndSpt,
+        src_3rdSpt=src_3rdSpt,
         count=total_records,
         steps_per_epoch=steps_per_epoch,
         style_labels = style_label,

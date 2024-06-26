@@ -13,6 +13,7 @@ import collections
 import math
 import time
 
+
 from utils import *
 from dataset import *
 from ops import *
@@ -31,7 +32,7 @@ parser.add_argument("--max_epochs", type=int, help="number of training epochs")
 parser.add_argument("--summary_freq", type=int, default=100, help="update summaries every summary_freq steps")
 parser.add_argument("--progress_freq", type=int, default=50, help="display progress every progress_freq steps")
 parser.add_argument("--trace_freq", type=int, default=0, help="trace execution every trace_freq steps")
-parser.add_argument("--display_freq", type=int, default=1000, help="write current training images every display_freq steps")
+parser.add_argument("--display_freq", type=int, default=5000, help="write current training images every display_freq steps")
 parser.add_argument("--save_freq", type=int, default=5000, help="save model every save_freq steps, 0 to disable")
 
 parser.add_argument("--separable_conv", action="store_true", help="use separable convolutions in the generator")
@@ -57,6 +58,8 @@ args = parser.parse_args()
 CROP_SIZE = 256
 
 def main():
+    start_zero = time.time()
+
     if args.seed is None:
         args.seed = random.randint(0, 2**31 - 1)
 
@@ -93,13 +96,13 @@ def main():
     print("examples count = %d" % examples.count)
 
     # src_font, tgt_font, tgt_skeleton are [batch_size, height, width, channels]
-    model = create_model(examples.src_font, examples.tgt_font, examples.tgt_1stSpt, examples.tgt_2ndSpt, examples.tgt_3rdSpt, \
+    model = create_model(examples.src_font, examples.tgt_font, examples.src_1stSpt, examples.src_2ndSpt, examples.src_3rdSpt, \
                         examples.style_labels, examples.character_labels, args)
 
     src_font = deprocess(examples.src_font)
-    tgt_1stSpt = deprocess(examples.tgt_1stSpt)
-    tgt_2ndSpt = deprocess(examples.tgt_2ndSpt)
-    tgt_3rdSpt = deprocess(examples.tgt_3rdSpt)
+    src_1stSpt = deprocess(examples.src_1stSpt)
+    src_2ndSpt = deprocess(examples.src_2ndSpt)
+    src_3rdSpt = deprocess(examples.src_3rdSpt)
     tgt_font = deprocess(examples.tgt_font)
     outputs = deprocess(model.outputs)
 
@@ -118,14 +121,14 @@ def main():
     with tf.name_scope("convert_tgt_font"):
         converted_tgt_font = convert(tgt_font)
 
-    with tf.name_scope("convert_tgt_1stSpt"):
-        converted_tgt_1stSpt = convert(tgt_1stSpt)
+    with tf.name_scope("convert_src_1stSpt"):
+        converted_src_1stSpt = convert(src_1stSpt)
 
-    with tf.name_scope("convert_tgt_2ndSpt"):
-        converted_tgt_2ndSpt = convert(tgt_2ndSpt)
+    with tf.name_scope("convert_src_2ndSpt"):
+        converted_src_2ndSpt = convert(src_2ndSpt)
 
-    with tf.name_scope("convert_tgt_3rdSpt"):
-        converted_tgt_3rdSpt = convert(tgt_3rdSpt)
+    with tf.name_scope("convert_src_3rdSpt"):
+        converted_src_3rdSpt = convert(src_3rdSpt)
 
     with tf.name_scope("convert_outputs"):
         converted_outputs = convert(outputs)
@@ -136,9 +139,9 @@ def main():
             "paths": examples.paths,
             "src_font": tf.map_fn(tf.image.encode_png, converted_src_font, dtype=tf.string, name="input_pngs"),
             "tgt_font": tf.map_fn(tf.image.encode_png, converted_tgt_font, dtype=tf.string, name="tgt_pngs"),
-            "tgt_1stSpt": tf.map_fn(tf.image.encode_png, converted_tgt_1stSpt, dtype=tf.string, name="tgt_1stSpt_pngs"),
-            "tgt_2ndSpt": tf.map_fn(tf.image.encode_png, converted_tgt_2ndSpt, dtype=tf.string, name="tgt_2ndSpt_pngs"),
-            "tgt_3rdSpt": tf.map_fn(tf.image.encode_png, converted_tgt_3rdSpt, dtype=tf.string, name="src_tgt_3rd_pngs"),
+            "src_1stSpt": tf.map_fn(tf.image.encode_png, converted_src_1stSpt, dtype=tf.string, name="src_1stSpt_pngs"),
+            "src_2ndSpt": tf.map_fn(tf.image.encode_png, converted_src_2ndSpt, dtype=tf.string, name="src_2ndSpt_pngs"),
+            "src_3rdSpt": tf.map_fn(tf.image.encode_png, converted_src_3rdSpt, dtype=tf.string, name="src_src_3rd_pngs"),
             "outputs": tf.map_fn(tf.image.encode_png, converted_outputs, dtype=tf.string, name="output_pngs"),
         }
 
@@ -149,14 +152,14 @@ def main():
     with tf.name_scope("tgt_font_summary"):
         tf.summary.image("tgt_font", converted_tgt_font)
 
-    with tf.name_scope("tgt_1stSpt_summary"):
-        tf.summary.image("tgt_1stSpt", converted_tgt_1stSpt)
+    with tf.name_scope("src_1stSpt_summary"):
+        tf.summary.image("src_1stSpt", converted_src_1stSpt)
         
-    with tf.name_scope("tgt_2ndSpt_summary"):    
-        tf.summary.image("tgt_2ndSpt", converted_tgt_2ndSpt)
+    with tf.name_scope("src_2ndSpt_summary"):    
+        tf.summary.image("src_2ndSpt", converted_src_2ndSpt)
 
-    with tf.name_scope("tgt_3rdSpt_summary"):    
-        tf.summary.image("tgt_3rdSpt", converted_tgt_3rdSpt)
+    with tf.name_scope("src_3rdSpt_summary"):    
+        tf.summary.image("src_3rdSpt", converted_src_3rdSpt)
 
     with tf.name_scope("outputs_summary"):
         tf.summary.image("outputs", converted_outputs)
@@ -170,9 +173,10 @@ def main():
     # tensorboard summaries
     tf.summary.scalar("discriminator_loss_fake", model.disc_fake_loss)
     tf.summary.scalar("discriminator_loss_real", model.disc_real_loss)
-    tf.summary.scalar("discriminator_loss_real_styl", model.disc_loss_real_styl)
+    tf.summary.scalar("disc_loss_real_chararcter", model.disc_loss_real_char)
     tf.summary.scalar("generator_loss_GAN", model.gen_loss_GAN)
     tf.summary.scalar("generator_loss_L1", model.gen_loss_L1)
+    # tf.summary.scalar("generator_loss_styl_enc", model.gen_loss_styl_enc)
 
 
     for var in tf.trainable_variables():
@@ -185,7 +189,7 @@ def main():
         parameter_count = tf.reduce_sum([tf.reduce_prod(tf.shape(v)) for v in tf.trainable_variables()])
 
     saver = tf.train.Saver(max_to_keep=1)
-
+    
     logdir = args.output_dir if (args.trace_freq > 0 or args.summary_freq > 0) else None
     sv = tf.train.Supervisor(logdir=logdir, save_summaries_secs=0, saver=None)
     with sv.managed_session() as sess:
@@ -238,9 +242,10 @@ def main():
                     #progress parameters
                     fetches["disc_real_loss"] = model.disc_real_loss
                     fetches["disc_fake_loss"] = model.disc_fake_loss 
-                    fetches["disc_loss_real_styl"] = model.disc_loss_real_styl
+                    fetches["disc_loss_real_char"] = model.disc_loss_real_char
                     fetches["gen_loss_GAN"] = model.gen_loss_GAN
-                    fetches["gen_loss_L1"] = model.gen_loss_L1
+                    fetches["gen_loss_L1"] = model.gen_loss_L1 
+                    # fetches["gen_loss_styl_enc"] = model.gen_loss_styl_enc
 
                 if should(args.summary_freq):
                     fetches["summary"] = sv.summary_op
@@ -273,9 +278,10 @@ def main():
                     print()
                     print("disc_real_loss", results["disc_real_loss"])
                     print("disc_fake_loss", results["disc_fake_loss"])  
-                    print("disc_loss_real_styl", results["disc_loss_real_styl"])
+                    print("disc_loss_real_char", results["disc_loss_real_char"])
                     print("gen_loss_GAN", results["gen_loss_GAN"])
-                    print("gen_loss_L1", results["gen_loss_L1"])
+                    print("gen_loss_L1", results["gen_loss_L1"]) 
+                    # print("gen_loss_styl_enc", results["gen_loss_styl_enc"])
                     print()
 
                 if should(args.save_freq):
@@ -284,5 +290,10 @@ def main():
 
                 if sv.should_stop():
                     break
+    end_zero = time.time()
+    etime = end_zero - start_zero
+    print("========= elapsed time (min) =  %0.4f min"%(etime/60))
+    print("========= elapsed time (hrs) =  %0.4f hrs"%((etime/60)/60))
+
 
 main()

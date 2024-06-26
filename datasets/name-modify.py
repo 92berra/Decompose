@@ -1,8 +1,8 @@
 import os
 import glob
 
-label = './datasets/characters/50characters.txt'
-images_dir = './datasets/images/target-combine'
+label = './datasets/characters/7characters.txt'
+images_dir = './datasets/images/test-combine'
 
 unicode_list = []
 
