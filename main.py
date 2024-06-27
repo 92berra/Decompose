@@ -63,7 +63,12 @@ def main():
     if args.seed is None:
         args.seed = random.randint(0, 2**31 - 1)
 
-    tf.set_random_seed(args.seed)
+    # Tensorflow-gpu 1.13
+    # tf.set_random_seed(args.seed)
+
+    # Tensorflow 2.16.1
+    tf.random.set_seed(args.seed)
+
     np.random.seed(args.seed)
     random.seed(args.seed)
 

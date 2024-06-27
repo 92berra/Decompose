@@ -5,10 +5,11 @@ import glob
 
 from ops import *
 
+
 EPS = 1e-12
 
 SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
-tgt_font_path = os.path.join(SCRIPT_PATH, 'fonts/target')
+tgt_font_path = os.path.join(SCRIPT_PATH, 'datasets/fonts/target')
 
 Model = collections.namedtuple("Model", "outputs, predict_real, predict_fake, \
         disc_real_loss, disc_fake_loss, disc_loss_real_char, discrim_grads_and_vars, \
@@ -32,7 +33,9 @@ def create_content_enc(content_img, a):
     print()
     channel = a.ngf
     # encoder_1: [batch, 256, 256, in_channels] => [batch, 128, 128, ngf]
-    with tf.variable_scope("content_encoder_1"):
+
+    #with tf.variable_scope("content_encoder_1"):
+    with tf.compat.v1.variable_scope("content_encoder_1"):
         x1 = conv(content_img, channel, kernel=7, stride=1, pad=3, pad_type='reflect')
         x1 = instance_norm(x1)
         x1 = tf.nn.relu(x1)
@@ -40,7 +43,8 @@ def create_content_enc(content_img, a):
         print('Content encoder 1 shape is ', x1.shape)
         print()
 
-    with tf.variable_scope("content_encoder_2"):
+
+    with tf.compat.v1.variable_scope("content_encoder_2"):
         x2 = conv(x1, channel * 2, kernel=4, stride=2, pad=1, pad_type='reflect')
         x2 = instance_norm(x2)
         x2 = tf.nn.relu(x2)
@@ -48,7 +52,8 @@ def create_content_enc(content_img, a):
         print('Content encoder 2 shape is ', x2.shape)
         print()
 
-    with tf.variable_scope("content_encoder_3"):
+
+    with tf.compat.v1.variable_scope("content_encoder_3"):
         x3 = conv(x2, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
         x3 = instance_norm(x3)
         x3 = tf.nn.relu(x3)
@@ -56,7 +61,7 @@ def create_content_enc(content_img, a):
         print('Content encoder 3 shape is ', x3.shape)
         print()
 
-    with tf.variable_scope("content_encoder_4"):
+    with tf.compat.v1.variable_scope("content_encoder_4"):
         x4 = conv(x3, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
         x4 = instance_norm(x4)
         x4 = tf.nn.relu(x4)
@@ -64,7 +69,7 @@ def create_content_enc(content_img, a):
         print('Content encoder 4 shape is ', x4.shape)
         print()
 
-    with tf.variable_scope("content_encoder_5"):
+    with tf.compat.v1.variable_scope("content_encoder_5"):
         x5 = conv(x4, channel * 8, kernel=4, stride=2, pad=1, pad_type='reflect')
         x5 = instance_norm(x5)
         x5 = tf.nn.relu(x5)
@@ -72,7 +77,7 @@ def create_content_enc(content_img, a):
         print('Content encoder 5 shape is ', x5.shape)
         print()
 
-    with tf.variable_scope("content_encoder_6"):
+    with tf.compat.v1.variable_scope("content_encoder_6"):
         x6 = conv(x5, channel * 8, kernel=4, stride=2, pad=1, pad_type='reflect')
         x6 = instance_norm(x6)
         x6 = tf.nn.relu(x6)
@@ -92,7 +97,7 @@ def create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, a):
     print()
     channel = a.ngf
     # encoder_1: [batch, 256, 256, in_channels] => [batch, 128, 128, ngf]
-    with tf.variable_scope("style_encoder_1"):
+    with tf.compat.v1.variable_scope("style_encoder_1"):
         x1 = conv(style_imgs, channel, kernel=7, stride=1, pad=3, pad_type='reflect')
         x1 = instance_norm(x1)
         x1 = tf.nn.relu(x1)
@@ -100,7 +105,7 @@ def create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, a):
         print('Style encoder 1 shape is ', x1.shape)
         print()
 
-    with tf.variable_scope("style_encoder_2"):
+    with tf.compat.v1.variable_scope("style_encoder_2"):
         x2 = conv(x1, channel * 2, kernel=4, stride=2, pad=1, pad_type='reflect')
         x2 = instance_norm(x2)
         x2 = tf.nn.relu(x2)
@@ -108,7 +113,7 @@ def create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, a):
         print('Style encoder 2 shape is ', x2.shape)
         print()
 
-    with tf.variable_scope("style_encoder_3"):
+    with tf.compat.v1.variable_scope("style_encoder_3"):
         x3 = conv(x2, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
         x3 = instance_norm(x3)
         x3 = tf.nn.relu(x3)
@@ -116,7 +121,7 @@ def create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, a):
         print('Style encoder 3 shape is ', x3.shape)
         print()
 
-    with tf.variable_scope("style_encoder_4"):
+    with tf.compat.v1.variable_scope("style_encoder_4"):
         x4 = conv(x3, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
         x4 = instance_norm(x4)
         x4 = tf.nn.relu(x4)
@@ -124,7 +129,7 @@ def create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, a):
         print('Style encoder 4 shape is ', x4.shape)
         print()
 
-    with tf.variable_scope("style_encoder_5"):
+    with tf.compat.v1.variable_scope("style_encoder_5"):
         x5 = conv(x4, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
         x5 = instance_norm(x5)
         x5 = tf.nn.relu(x5)
@@ -132,7 +137,7 @@ def create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, a):
         print('Style encoder 5 shape is ', x5.shape)
         print()
 
-    with tf.variable_scope("style_encoder_6"):
+    with tf.compat.v1.variable_scope("style_encoder_6"):
         x6 = conv(x5, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
         x6 = instance_norm(x6)
         x6 = tf.nn.relu(x6)
@@ -140,7 +145,7 @@ def create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, a):
         print('Style encoder 6 shape is ', x6.shape)
         print()
     
-    with tf.variable_scope("style_encoder_7"):
+    with tf.compat.v1.variable_scope("style_encoder_7"):
         x7 = conv(x6, channel * 4, kernel=4, stride=2, pad=1, pad_type='reflect')
         x7 = instance_norm(x7)
         x7 = tf.nn.relu(x7)
@@ -148,7 +153,7 @@ def create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, a):
         print('Style encoder 7 shape is ', x7.shape)
         print()
 
-    with tf.variable_scope("style_encoder_8"):
+    with tf.compat.v1.variable_scope("style_encoder_8"):
         x8 = conv(x7, channel * 8, kernel=4, stride=2, pad=1, pad_type='reflect')
         x8 = instance_norm(x8)
         x8 = tf.nn.relu(x8)
@@ -156,7 +161,7 @@ def create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, a):
         print('Style encoder 8 shape is ', x8.shape)
         print()
 
-    with tf.variable_scope("style_encoder_9"):
+    with tf.compat.v1.variable_scope("style_encoder_9"):
         x9 = conv(x8, channel * 8, kernel=4, stride=2, pad=1, pad_type='reflect')
         x9 = instance_norm(x9)
         x9 = tf.nn.relu(x9)
@@ -183,7 +188,7 @@ def create_decoder(content, style, generator_outputs_channels, cnt_layers, sty_l
     print('Decoder input shape is ', x.shape)
     print()
 
-    with tf.variable_scope("decoder_1"):
+    with tf.compat.v1.variable_scope("decoder_1"):
         x1 = up_sample(x, scale_factor=2)
         x1 = conv(x1, channel//2, kernel=5, stride=1, pad=2, pad_type='reflect')
         x1 = instance_norm(x1)
@@ -194,7 +199,7 @@ def create_decoder(content, style, generator_outputs_channels, cnt_layers, sty_l
     channel = channel // 2
 
     x1 = tf.concat([x1, cnt_layers[4], sty_layers[4]], axis=3)
-    with tf.variable_scope("decoder_2"):
+    with tf.compat.v1.variable_scope("decoder_2"):
         x2 = up_sample(x1, scale_factor=2)
         x2 = conv(x2, channel//2, kernel=5, stride=1, pad=2, pad_type='reflect')
         x2 = instance_norm(x2)
@@ -205,7 +210,7 @@ def create_decoder(content, style, generator_outputs_channels, cnt_layers, sty_l
     channel = channel // 2
 
     x2 = tf.concat([x2, cnt_layers[3], sty_layers[3]], axis=3)
-    with tf.variable_scope("decoder_3"):
+    with tf.compat.v1.variable_scope("decoder_3"):
         x3 = up_sample(x2, scale_factor=2)
         x3 = conv(x3, channel//2, kernel=5, stride=1, pad=2, pad_type='reflect')
         x3 = instance_norm(x3)
@@ -216,7 +221,7 @@ def create_decoder(content, style, generator_outputs_channels, cnt_layers, sty_l
     channel = channel // 2
 
     x3 = tf.concat([x3, cnt_layers[2], sty_layers[2]], axis=3)
-    with tf.variable_scope("decoder_4"):
+    with tf.compat.v1.variable_scope("decoder_4"):
         x4 = up_sample(x3, scale_factor=2)
         x4 = conv(x4, channel//2, kernel=5, stride=1, pad=2, pad_type='reflect')
         x4 = instance_norm(x4)
@@ -227,7 +232,7 @@ def create_decoder(content, style, generator_outputs_channels, cnt_layers, sty_l
     channel = channel // 2
 
     x4 = tf.concat([x4, cnt_layers[1], sty_layers[1]], axis=3)
-    with tf.variable_scope("decoder_5"):
+    with tf.compat.v1.variable_scope("decoder_5"):
         x5 = up_sample(x4, scale_factor=2)
         x5 = conv(x5, channel//2, kernel=5, stride=1, pad=2, pad_type='reflect')
         x5 = instance_norm(x5)
@@ -258,7 +263,7 @@ def create_discriminator(discrim_inputs, discrim_targets, args):
     input = tf.concat([discrim_inputs, discrim_targets], axis=3)
 
     # layer_1: [batch, 256, 256, in_channels * 2] => [batch, 128, 128, ndf]
-    with tf.variable_scope("layer_1"):
+    with tf.compat.v1.variable_scope("layer_1"):
         convolved = discrim_conv(input, args.ndf, stride=2)
         rectified = lrelu(convolved, 0.2)
         layers.append(rectified)
@@ -267,7 +272,7 @@ def create_discriminator(discrim_inputs, discrim_targets, args):
     # layer_3: [batch, 64, 64, ndf * 2] => [batch, 32, 32, ndf * 4]
     # layer_4: [batch, 32, 32, ndf * 4] => [batch, 31, 31, ndf * 8]
     for i in range(n_layers):
-        with tf.variable_scope("layer_%d" % (len(layers) + 1)):
+        with tf.compat.v1.variable_scope("layer_%d" % (len(layers) + 1)):
             out_channels = args.ndf * min(2**(i+1), 8)
             stride = 1 if i == n_layers - 1 else 2  # last layer here has stride 1
             convolved = discrim_conv(layers[-1], out_channels, stride=stride)
@@ -277,17 +282,29 @@ def create_discriminator(discrim_inputs, discrim_targets, args):
     features = layers[-1]
 
     # layer_5: [batch, 31, 31, ndf * 8] => [batch, 30, 30, 1]
-    with tf.variable_scope("layer_%d" % (len(layers) + 1)):
+    with tf.compat.v1.variable_scope("layer_%d" % (len(layers) + 1)):
         convolved = discrim_conv(rectified, out_channels=1, stride=1)
         output = tf.sigmoid(convolved)
         layers.append(output)
 
-    # Adding Fully connected layer after our Encoder as we want to add classification loss
-    output_flat = tf.layers.flatten(features)
 
-    with tf.variable_scope('layer_fc_c'):
-        char_y = tf.layers.dense(output_flat, total_characters,
-                                      kernel_initializer=tf.random_normal_initializer(0, 0.02))
+    # Adding Fully connected layer after our Encoder as we want to add classification loss
+
+    # tensorflow-gpu 1.13
+    #output_flat = tf.layers.flatten(features)
+
+    # tensorflow 2.13
+    output_flat = tf.keras.layers.Flatten()(features)
+
+    # tensorflow-gpu 1.13
+    # with tf.compat.v1.variable_scope('layer_fc_c'):
+    #     char_y = tf.layers.dense(output_flat, total_characters, kernel_initializer=tf.random_normal_initializer(0, 0.02))
+        
+    # tensorflow 2.16
+    with tf.compat.v1.variable_scope('layer_fc_c'):
+        char_y = tf.keras.layers.Dense(units=total_characters, \
+                                       kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.02))(output_flat)
+
 
     return layers[-1], char_y, features
 
@@ -302,25 +319,50 @@ def create_discriminator(discrim_inputs, discrim_targets, args):
 
 def create_model(src_font, targets, src_1stSpt, src_2ndSpt, src_3rdSpt, style_labels, char_labels, args):
     out_channels = int(targets.get_shape()[-1])
+
+    # tensorflow-gpu 1.13
+    # with tf.name_scope("content_encoder_generator"):
+    #     with tf.variable_scope("generator"):
+    #         content_features, content_layers = create_content_enc(src_font, args)
+    # with tf.name_scope("style_encoder_generator"):
+    #     with tf.variable_scope("generator"):
+    #         style_features, style_layers = create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, args)
+    # with tf.name_scope("decoder_generator"):
+    #     with tf.variable_scope("generator"):
+    #         outputs = create_decoder(content_features, style_features, out_channels, content_layers, style_layers, args)
+
+    # tensorflow 2.16.1
     with tf.name_scope("content_encoder_generator"):
-        with tf.variable_scope("generator"):
+        with tf.compat.v1.variable_scope("generator"):
             content_features, content_layers = create_content_enc(src_font, args)
     with tf.name_scope("style_encoder_generator"):
-        with tf.variable_scope("generator"):
+        with tf.compat.v1.variable_scope("generator"):
             style_features, style_layers = create_style_enc(src_1stSpt, src_2ndSpt, src_3rdSpt, args)
     with tf.name_scope("decoder_generator"):
-        with tf.variable_scope("generator"):
+        with tf.compat.v1.variable_scope("generator"):
             outputs = create_decoder(content_features, style_features, out_channels, content_layers, style_layers, args)
 
     # create two copies of discriminator, one for real pairs and one for fake pairs
     # they share the same underlying variables
+    
+    # tensorflow-gpu 1.13
+    # with tf.name_scope("real_discriminator"):
+    #     with tf.variable_scope("discriminator"):
+    #         # 2x [batch, height, width, channels] => [batch, 7, 7, 1]
+    #         predict_real, pred_char, real_feats = create_discriminator(src_font, targets, args)
+
+    # with tf.name_scope("fake_discriminator"):
+    #     with tf.variable_scope("discriminator", reuse=True):
+    #         # 2x [batch, height, width, channels] => [batch, 7, 7, 1]
+    #         predict_fake, _, fake_feats = create_discriminator(src_font, outputs, args)
+
+    # tensorflow 2.16.1
     with tf.name_scope("real_discriminator"):
-        with tf.variable_scope("discriminator"):
+        with tf.compat.v1.variable_scope("discriminator"):
             # 2x [batch, height, width, channels] => [batch, 7, 7, 1]
             predict_real, pred_char, real_feats = create_discriminator(src_font, targets, args)
-
     with tf.name_scope("fake_discriminator"):
-        with tf.variable_scope("discriminator", reuse=True):
+        with tf.compat.v1.variable_scope("discriminator", reuse=True):
             # 2x [batch, height, width, channels] => [batch, 7, 7, 1]
             predict_fake, _, fake_feats = create_discriminator(src_font, outputs, args)
 
@@ -348,15 +390,15 @@ def create_model(src_font, targets, src_1stSpt, src_2ndSpt, src_3rdSpt, style_la
 
     # Training D and G using Adam
     with tf.name_scope("discriminator_train"):
-        discrim_tvars = [var for var in tf.trainable_variables() if var.name.startswith("discriminator")]
-        discrim_optim = tf.train.AdamOptimizer(args.lr, args.beta1)
+        discrim_tvars = [var for var in tf.compat.v1.trainable_variables() if var.name.startswith("discriminator")]
+        discrim_optim = tf.compat.v1.train.AdamOptimizer(args.lr, args.beta1)
         discrim_grads_and_vars = discrim_optim.compute_gradients(discrim_loss, var_list=discrim_tvars)
         discrim_train = discrim_optim.apply_gradients(discrim_grads_and_vars)
 
     with tf.name_scope("generator_train"):
         with tf.control_dependencies([discrim_train]):
-            gen_tvars = [var for var in tf.trainable_variables() if var.name.startswith("generator")]
-            gen_optim = tf.train.AdamOptimizer(args.lr, args.beta1)
+            gen_tvars = [var for var in tf.compat.v1.trainable_variables() if var.name.startswith("generator")]
+            gen_optim = tf.compat.v1.train.AdamOptimizer(args.lr, args.beta1)
             gen_grads_and_vars = gen_optim.compute_gradients(gen_loss, var_list=gen_tvars)
             gen_train = gen_optim.apply_gradients(gen_grads_and_vars)
 

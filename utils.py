@@ -111,21 +111,21 @@ def append_index(filesets, args, step=False):
         index.write("</tr>")
     return index_path
 
-def pytorch_kaiming_weight_factor(a=0.0, activation_function='leaky_relu', uniform=False) :
-    if activation_function == 'relu' :
+def pytorch_kaiming_weight_factor(a=0.0, activation_function='leaky_relu', uniform=False):
+    if activation_function == 'relu':
         gain = np.sqrt(2.0)
-    elif activation_function == 'leaky_relu' :
+    elif activation_function == 'leaky_relu':
         gain = np.sqrt(2.0 / (1 + a ** 2))
-    elif activation_function == 'tanh' :
+    elif activation_function == 'tanh':
         gain = 5.0 / 3
-    else :
+    else:
         gain = 1.0
 
-    if uniform :
+    if uniform:
         factor = gain * gain
-        mode = 'FAN_IN'
-    else :
+        mode = 'fan_in'
+    else:
         factor = (gain * gain) / 1.3
-        mode = 'FAN_IN'
+        mode = 'fan_in'
 
     return factor, mode, uniform

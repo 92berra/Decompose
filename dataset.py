@@ -8,9 +8,9 @@ import collections
 from utils import *
 
 SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
-train_tfrecords_dir = os.path.join(SCRIPT_PATH, 'tfrecords/train/trainData_final')
-test_tfrecords_dir = os.path.join(SCRIPT_PATH, 'tfrecords/test/test-tfrecords-output-50-hh')
-tgt_font_path = os.path.join(SCRIPT_PATH, 'fonts/target')
+train_tfrecords_dir = os.path.join(SCRIPT_PATH, 'trained_model')
+test_tfrecords_dir = os.path.join(SCRIPT_PATH, 'test-tfrecords-output-7chrs')
+tgt_font_path = os.path.join(SCRIPT_PATH, 'datasets/fonts/target')
 
 CROP_SIZE = 256
 # parameters for style embedding
@@ -30,14 +30,28 @@ Examples = collections.namedtuple("Examples", "paths, src_font, src_1stSpt, src_
 ############################################################################################ 
 
 def _parse_function(example, a):
-    features = tf.parse_single_example(
+
+    # Tensorflow-gpu 1.13
+    # features = tf.parse_single_example(
+    #     example,
+    #     features={
+    #         'image/encoded': tf.FixedLenFeature([], dtype=tf.string, default_value=''),
+    #         'image/path': tf.FixedLenFeature([], dtype=tf.string, default_value=''),
+    #         'image/style_label': tf.FixedLenFeature([], tf.int64),
+    #         'image/character_label': tf.FixedLenFeature([], tf.int64)
+    #     }
+    # )
+
+    features = tf.io.parse_single_example(
         example,
         features={
-            'image/encoded': tf.FixedLenFeature([], dtype=tf.string, default_value=''),
-            'image/path': tf.FixedLenFeature([], dtype=tf.string, default_value=''),
-            'image/style_label': tf.FixedLenFeature([], tf.int64),
-            'image/character_label': tf.FixedLenFeature([], tf.int64)
-        })
+            'image/encoded': tf.io.FixedLenFeature([], dtype=tf.string, default_value=''),
+            'image/path': tf.io.FixedLenFeature([], dtype=tf.string, default_value=''),
+            'image/style_label': tf.io.FixedLenFeature([], tf.int64),
+            'image/character_label': tf.io.FixedLenFeature([], tf.int64)
+        }
+    )
+
     # Get the data.
     image_encoded = features['image/encoded']
     path = features['image/path']
@@ -70,7 +84,7 @@ def _parse_function(example, a):
         # b_images = preprocess(image[:,width//7:width//7+256,:]) #512
         # c_images = preprocess(image[:,width//7+256:width//7+512,:]) #768
         # d_images = preprocess(image[:,width//7+512:width//7+768,:]) #1024
-        # e_images = preprocess(image[:,width//7+768:width//7+1024,:]) #1280
+        # e_images = preprocess(image[:,width//7+768:width//7+1    024,:]) #1280
 
     # synchronize seed for image operations so that we do the same operations to both
     # input and output images
@@ -84,10 +98,22 @@ def _parse_function(example, a):
 
         # area produces a nice downscaling, but does nearest neighbor for upscaling
         # assume we're going to be doing downscaling here
-        r = tf.image.resize_images(r, [a.scale_size, a.scale_size], method=tf.image.ResizeMethod.AREA)
+        
+        # Tensorflow-gpu 1.13
+        #r = tf.image.resize_images(r, [a.scale_size, a.scale_size], method=tf.image.ResizeMethod.AREA)
+
+        # Tensorflow 2.16.1
+        r = tf.image.resize(r, [a.scale_size, a.scale_size], method=tf.image.ResizeMethod.AREA, preserve_aspect_ratio=True)
+
         # r = tf.image.resize_images(r, [a.scale_size, a.scale_size, a.scale_size], method=tf.image.ResizeMethod.AREA)
 
-        offset = tf.cast(tf.floor(tf.random_uniform([2], 0, a.scale_size - CROP_SIZE + 1, seed=seed)), dtype=tf.int32)
+        # Tensorflow-gpu 1.13
+        #offset = tf.cast(tf.floor(tf.random_uniform([2], 0, a.scale_size - CROP_SIZE + 1, seed=seed)), dtype=tf.int32)
+
+        # Tensorflow 2.16.1
+        offset = tf.cast(tf.math.floor(tf.random.uniform([2], 0, a.scale_size - CROP_SIZE + 1)), tf.int32)
+
+
         # offset = tf.cast(tf.floor(tf.random_uniform([3], 0, a.scale_size - CROP_SIZE + 1, a.scale_size - CROP_SIZE + 2, seed=seed)), dtype=tf.int32)
 
         if a.scale_size > CROP_SIZE:
@@ -129,7 +155,12 @@ def load_examples(args):
     if args.mode == "test":
             print('Processing the Test TFRecord File')
             tf_record_pattern = os.path.join(test_tfrecords_dir, '%s-*' % 'test')
-            test_data_files = tf.gfile.Glob(tf_record_pattern)
+
+            # Tensorflow-gpu 1.13
+            #test_data_files = tf.gfile.Glob(tf_record_pattern)
+
+            # Tensorflow 2.16.1
+            test_data_files = tf.io.gfile.glob(tf_record_pattern)
 
             # Create testing dataset input pipeline.
             test_dataset = tf.data.TFRecordDataset(test_data_files) \
@@ -137,12 +168,22 @@ def load_examples(args):
                 .batch(args.batch_size) \
                 .prefetch(1)
 
-            iterator = test_dataset.make_one_shot_iterator()
+            # Tensorflow-gpu 1.13
+            #iterator = test_dataset.make_one_shot_iterator()
+
+            # Tensorflow 2.16.1
+            iterator = iter(test_dataset)
+
             batch = iterator.get_next()
 
             # Function for getting the total no of records
             for fn in test_data_files:
-                for record in tf.python_io.tf_record_iterator(fn):
+
+                # Tensorflow-gpu 1.13
+                #for record in tf.python_io.tf_record_iterator(fn):
+
+                # Tensorflow 2.16.1
+                for record in tf.data.TFRecordDataset(fn):
                    total_records += 1
     else:
         print('Processing the Train TFRecord File')
