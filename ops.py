@@ -1,9 +1,8 @@
 import tensorflow as tf
-import tensorflow_addons as tfa
 #import tensorflow.contrib as tf_contrib
-
 from utils import pytorch_kaiming_weight_factor
-import numpy as np
+from tensorflow_addons.layers import InstanceNormalization
+import tensorflow.python.keras as keras
 
 ##################################################################################
 # Initialization
@@ -77,7 +76,7 @@ def batchnorm(inputs, training=True):
                                               gamma_initializer=tf.keras.initializers.RandomNormal(mean=1.0, stddev=0.02))(inputs, training=training)
 
 def instance_norm(x):
-    return tfa.layers.InstanceNormalization()(x)
+    return InstanceNormalization()(x)
 
 ##################################################################################
 # New OPS for New architecture

@@ -128,22 +128,24 @@ python main.py --mode test --output_dir result --checkpoint trained_model
 <b>1) Generated result sample</b>
 <br/>
 <div align='center'>
-    <img src='assets/2-result-generated_sample.png' width='700'/>
+    <img src='assets/2-result-generated_sample_v2.png' width='700'/>
 </div>
 
 <br/>
+
+<b>2) Generated result sample (unseen font style, seen characters)</b>
+<br/>
+<div align='center'>
+    <img src='assets/2-result-generated_unseen_fontstyle.png' width='700'/>
+</div>
+
 <br/>
 
-<b>2) Values of Loss, SSIM, FID </b>
+<b>3) Values of Loss, SSIM, FID </b>
 <br/>
-🛠️ In progress...
-
-<br/>
-
-<b>3) Figure: Loss comparison (MXFont, CKFont, My research)</b>
-<br/>
-🛠️ In progress...
-
+<div align='center'>
+    <img src='assets/2-result-loss-ssim.png' width='500'/>
+</div>
 
 <br/>
 <br/>

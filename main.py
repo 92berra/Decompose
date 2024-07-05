@@ -13,12 +13,10 @@ import collections
 import math
 import time
 
-
 from utils import *
 from dataset import *
 from ops import *
 from model import *
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_dir", help="path to folder containing images")
@@ -101,8 +99,7 @@ def main():
     print("examples count = %d" % examples.count)
 
     # src_font, tgt_font, tgt_skeleton are [batch_size, height, width, channels]
-    model = create_model(examples.src_font, examples.tgt_font, examples.src_1stSpt, examples.src_2ndSpt, examples.src_3rdSpt, \
-                        examples.style_labels, examples.character_labels, args)
+    model = create_model(examples.src_font, examples.tgt_font, examples.src_1stSpt, examples.src_2ndSpt, examples.src_3rdSpt, examples.style_labels, examples.character_labels, args)
 
     src_font = deprocess(examples.src_font)
     src_1stSpt = deprocess(examples.src_1stSpt)
