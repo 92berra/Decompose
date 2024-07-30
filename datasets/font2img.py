@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from jamo import h2j, j2hcj
 import argparse
 import glob
 import io
